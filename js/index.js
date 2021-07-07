@@ -1,6 +1,8 @@
 const headerCityButton = document.querySelector('.header__city-button');
 const subheaderCart = document.querySelector('.subheader__cart');
 const cartOverlay = document.querySelector('.cart-overlay');
+const goodsTitle = document.querySelector('.goods__title');
+let hash = location.hash.substring(1);
 
 const getData = async () => {
   const data = await fetch('db.json');
@@ -12,12 +14,16 @@ const getData = async () => {
   }
 }
 
-const getGoods = (callback) => {
-  getData().then(data => callback(data))
-          .catch(err => console.error(err));
+const getGoods = (callback, value) => {
+  getData().then(data => {
+    if (value) {
+      callback(data.filter(i => i.category === value));
+    } else {
+      callback(data);
+    }
+  })
+  .catch(err => console.error(err));
 }
-
-getGoods(data => console.warn(data));  
 
 const disableScroll = () => {
   const widthScroll = window.innerWidth - document.body.offsetWidth;
@@ -50,6 +56,71 @@ const cartModalOpen = () => {
 cartModalClose = () => {
   cartOverlay.classList.remove('cart-overlay-open');
   enableScroll();
+}
+
+const goodsPageTitle = hash => {
+  switch (hash) {
+    case 'men':
+      return 'Мужчинам';
+    case 'women':
+      return 'Женщинам';
+    case 'kids':
+      return 'Детям';
+      default: ''
+  }
+}
+
+try {
+  const goodsList = document.querySelector('.goods__list');
+
+  if (!goodsList) {
+    throw 'This is not a goods page'
+  }
+
+  const createCard = ({ id, name, sizes, preview, cost, brand }) => {
+    const li = document.createElement('li');
+    li.classList.add('goods__item');
+
+    li.innerHTML = `
+      <article class="good">
+        <a class="good__link-img" href="card-good.html#${id}">
+            <img class="good__img" src="goods-image/${preview}" alt="">
+        </a>
+        <div class="good__description">
+            <p class="good__price">${cost} &#8381;</p>
+            <h3 class="good__title">${brand} <span class="good__title__grey">/ ${name}</span></h3>
+            ${sizes ? 
+              `<p class="good__sizes">Размеры (RUS): <span class="good__sizes-list">${sizes.join(' ')}</span></p>` :
+              ''}
+            <a class="good__link" href="card-good.html#${id}">Подробнее</a>
+        </div>
+      </article>
+    `;
+
+    return li;
+  };
+
+  const renderGoodsList = data => {
+    goodsList.textContent = '';
+
+    data.forEach(item => {
+      const card = createCard(item);
+      goodsList.append(card);
+    })
+  };
+
+  window.addEventListener('hashchange', () => {
+    hash = location.hash.substring(1);
+    getGoods(renderGoodsList, hash);
+
+    goodsTitle.textContent = goodsPageTitle(hash);
+  });
+
+  getGoods(renderGoodsList, hash);
+  goodsTitle.textContent = goodsPageTitle(hash);
+
+} catch (err) {
+  console.warn(err)
 }
 
 
