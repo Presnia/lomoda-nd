@@ -2,6 +2,22 @@ const headerCityButton = document.querySelector('.header__city-button');
 const subheaderCart = document.querySelector('.subheader__cart');
 const cartOverlay = document.querySelector('.cart-overlay');
 
+const getData = async () => {
+  const data = await fetch('db.json');
+
+  if (data.ok) {
+    return data.json();
+  } else {
+    throw new Error(`Данные не были получены. Ошибка ${data.status}: ${data.statusText}`)
+  }
+}
+
+const getGoods = (callback) => {
+  getData().then(data => callback(data))
+          .catch(err => console.error(err));
+}
+
+getGoods(data => console.warn(data));  
 
 const disableScroll = () => {
   const widthScroll = window.innerWidth - document.body.offsetWidth;
