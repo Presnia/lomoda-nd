@@ -58,16 +58,8 @@ cartModalClose = () => {
   enableScroll();
 }
 
-const goodsPageTitle = hash => {
-  switch (hash) {
-    case 'men':
-      return 'Мужчинам';
-    case 'women':
-      return 'Женщинам';
-    case 'kids':
-      return 'Детям';
-      default: ''
-  }
+const goodsChangeTitle = () => {
+  goodsTitle.textContent = document.querySelector(`[href*='#${hash}']`).textContent;
 }
 
 try {
@@ -113,11 +105,11 @@ try {
     hash = location.hash.substring(1);
     getGoods(renderGoodsList, hash);
 
-    goodsTitle.textContent = goodsPageTitle(hash);
+    goodsChangeTitle();
   });
 
   getGoods(renderGoodsList, hash);
-  goodsTitle.textContent = goodsPageTitle(hash);
+  goodsChangeTitle();
 
 } catch (err) {
   console.warn(err)
